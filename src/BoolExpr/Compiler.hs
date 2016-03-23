@@ -2,8 +2,10 @@
 
 module BoolExpr.Compiler
     ( cmpQExp
+    , cmpITE
     ) where
 
+import Data.Maybe
 import Language.Haskell.TH
 
 import BoolExpr.BoolExpr
@@ -31,3 +33,16 @@ cmpQExp be env =
                            in [| $(lhs) || $(rhs) |]
              _ -> error "???"
 
+-- Turn a boolean expression with `n` free variables into an equivalent Haskell
+-- expression with `n` parameters that are chained in an `if-then-else` style
+-- construction.
+cmpITE :: BoolExpr -> Q Exp
+cmpITE be = cmpITE' (fromMaybe (-1) (maximumVar be)) (Env.empty)
+  where cmpITE' (-1) env =
+          let res = eval be env
+           in [| res |]
+        cmpITE' i env =
+          let trueExp = cmpITE' (i-1) (Env.set i True env)
+              falseExp = cmpITE' (i-1) (Env.set i False env)
+              varName = "x_" ++ (show i)
+           in [| if $(varE (mkName varName)) then $(trueExp) else $(falseExp) |]
