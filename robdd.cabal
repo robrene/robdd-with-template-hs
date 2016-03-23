@@ -1,0 +1,53 @@
+name:                robdd
+version:             0.1.0.0
+synopsis:            Initial project template from stack
+description:         Please see README.md
+homepage:            http://github.com/robrene/robdd#readme
+license:             BSD3
+license-file:        LICENSE
+author:              Rob Spoel
+maintainer:          robspoel@gmail.com
+copyright:           2016 Rob Spoel
+category:            Code Generation
+build-type:          Simple
+cabal-version:       >=1.10
+
+library
+  ghc-options:         -Wall
+  hs-source-dirs:      src
+  exposed-modules:     BoolExpr.BoolExpr
+                     , BoolExpr.Compiler
+                     , BoolExpr.Env
+  build-depends:       base >= 4.7 && < 5
+                     , containers
+                     , template-haskell
+  default-language:    Haskell2010
+
+executable robdd-exe
+  hs-source-dirs:      app
+  main-is:             Main.hs
+  ghc-options:         -threaded -rtsopts -with-rtsopts=-N
+  build-depends:       base
+                     , robdd
+  default-language:    Haskell2010
+
+test-suite robdd-test
+  type:                exitcode-stdio-1.0
+  hs-source-dirs:      test
+  main-is:             Spec.hs
+  other-modules:       BoolExpr.UnitTests.BoolExpr
+                     , BoolExpr.UnitTests.Compiler
+                     , BoolExpr.QuickCheck.BoolExpr
+                     , BoolExpr.QuickCheck.Compiler
+  build-depends:       base
+                     , robdd
+                     , HUnit
+                     , QuickCheck
+                     , containers
+                     , template-haskell
+  ghc-options:         -threaded -rtsopts -with-rtsopts=-N
+  default-language:    Haskell2010
+
+source-repository head
+  type:     git
+  location: https://github.com/robrene/robdd
