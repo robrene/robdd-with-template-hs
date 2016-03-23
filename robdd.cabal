@@ -50,4 +50,4 @@ test-suite robdd-test
 
 source-repository head
   type:     git
-  location: https://github.com/robrene/robdd
+  location: https://github.com/robrene/robdd-with-template-hs
