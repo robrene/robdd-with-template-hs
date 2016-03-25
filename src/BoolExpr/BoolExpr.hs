@@ -80,12 +80,8 @@ maximumVar (Var i)     = Just i
 maximumVar (Zero)      = Nothing
 maximumVar (One)       = Nothing
 maximumVar (Not e)     = maximumVar e
-maximumVar (And e₁ e₂) = do m₁ <- maximumVar e₁
-                            m₂ <- maximumVar e₂
-                            return $ max m₁ m₂
-maximumVar (Or e₁ e₂)  = do m₁ <- maximumVar e₁
-                            m₂ <- maximumVar e₂
-                            return $ max m₁ m₂
+maximumVar (And e₁ e₂) = max (maximumVar e₁) (maximumVar e₂)
+maximumVar (Or e₁ e₂)  = max (maximumVar e₁) (maximumVar e₂)
 maximumVar _ = error "???"
 
 -- Evaluate a boolean expression with an environment. Will cause an error
