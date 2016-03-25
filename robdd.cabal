@@ -19,6 +19,7 @@ library
                      , BoolExpr.Compiler
                      , BoolExpr.Env
                      , BoolExpr.OBDD
+                     , BoolExpr.ROBDD
   build-depends:       base >= 4.7 && < 5
                      , containers
                      , template-haskell
