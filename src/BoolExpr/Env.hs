@@ -1,5 +1,6 @@
 module BoolExpr.Env
     ( Env
+    , VarId
     , (!)
     , null
     , size
@@ -28,12 +29,13 @@ boolean values. The interface is similar to that of `Data.IntMap`.
 -}
 
 newtype Env = Env (IntMap Bool) deriving (Show, Eq)
+type VarId = IntMap.Key
 
 --
 -- Operators:
 
 -- Find the value at a key.
-(!) :: Env -> Int -> Bool
+(!) :: Env -> VarId -> Bool
 (!) (Env imap) i = imap IntMap.! i
 
 --
@@ -48,15 +50,15 @@ size :: Env -> Int
 size (Env imap) = IntMap.size imap
 
 -- Is a variable with a number a member of the environment?
-member :: Int -> Env -> Bool
+member :: VarId -> Env -> Bool
 member i (Env imap) = IntMap.member i imap
 
 -- Is a variable with a number not a member of the environment?
-notMember :: Int -> Env -> Bool
+notMember :: VarId -> Env -> Bool
 notMember i (Env imap) = IntMap.notMember i imap
 
 -- Lookup the value of a variable with a number in the environment.
-lookup :: Int -> Env -> Maybe Bool
+lookup :: VarId -> Env -> Maybe Bool
 lookup i (Env imap) = IntMap.lookup i imap
 
 --
@@ -67,7 +69,7 @@ empty :: Env
 empty = Env IntMap.empty
 
 -- An environment of one element.
-singleton :: Int -> Bool -> Env
+singleton :: VarId -> Bool -> Env
 singleton i _ | i < 0 = error "Can only use natural numbers as variable numbers"
 singleton i b = Env $ IntMap.singleton i b
 
@@ -81,12 +83,12 @@ mkEnv bs = mkEnv' 0 bs empty
 -- Update:
 
 -- Set the boolean value for a numbered variable in the environment.
-set :: Int -> Bool -> Env -> Env
+set :: VarId -> Bool -> Env -> Env
 set i _ _ | i < 0 = error "Can only use natural numbers as variable numbers"
 set i b (Env imap) = Env $ IntMap.insert i b imap
 
 -- Delete a numbered variable from the environment.
-delete :: Int -> Env -> Env
+delete :: VarId -> Env -> Env
 delete i (Env imap) = Env $ IntMap.delete i imap
 
 --
@@ -98,19 +100,19 @@ elems :: Env -> [Bool]
 elems (Env imap) = IntMap.elems imap
 
 -- Return all variable numbers of the environment in ascending order.
-vars :: Env -> [Int]
+vars :: Env -> [VarId]
 vars (Env imap) = IntMap.keys imap
 
 -- Return all (variable numbers,boolean value) pairs of the environment in
 -- ascending order.
-assocs :: Env -> [(Int, Bool)]
+assocs :: Env -> [(VarId, Bool)]
 assocs (Env imap) = IntMap.assocs imap
 
 -- Convert the environment to a list of (variable numbers,boolean value) pairs.
-toList :: Env -> [(Int, Bool)]
+toList :: Env -> [(VarId, Bool)]
 toList (Env imap) = IntMap.toList imap
 
 -- Create a map from a list of (variable numbers,boolean value) pairs.
-fromList :: [(Int, Bool)] -> Env
+fromList :: [(VarId, Bool)] -> Env
 fromList xs | any (\(i, _) -> i < 0) xs = error "Can only use natural numbers as variable numbers"
 fromList xs = Env $ IntMap.fromList xs

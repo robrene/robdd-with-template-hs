@@ -27,7 +27,7 @@ import BoolExpr.Env
 
 -- Simple and minimal boolean expression definition.
 data BoolExpr =
-    BEVar Int
+    BEVar VarId
   | BEZero
   | BEOne
   | BENot BoolExpr
@@ -35,7 +35,7 @@ data BoolExpr =
   | BEOr BoolExpr BoolExpr
   deriving (Show, Eq)
 
-pattern Var       :: Int -> BoolExpr
+pattern Var       :: VarId -> BoolExpr
 pattern Var i     <- BEVar i
 pattern Zero      :: BoolExpr
 pattern Zero      <- BEZero
@@ -48,7 +48,7 @@ pattern And e₁ e₂ <- BEAnd e₁ e₂
 pattern Or        :: BoolExpr -> BoolExpr -> BoolExpr
 pattern Or e₁ e₂  <- BEOr e₁ e₂
 
-var :: Int -> BoolExpr
+var :: VarId -> BoolExpr
 var i | i < 0 = error "Can only use natural numbers as variable numbers"
 var i = BEVar i
 
@@ -75,7 +75,7 @@ neg e = BENot e
 
 -- Return the highest variable number inside a boolean expression, or `Nothing`
 -- if there are no numbered variables inside the expression.
-maximumVar :: BoolExpr -> Maybe Int
+maximumVar :: BoolExpr -> Maybe VarId
 maximumVar (Var i)     = Just i
 maximumVar (Zero)      = Nothing
 maximumVar (One)       = Nothing
