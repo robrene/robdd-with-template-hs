@@ -20,6 +20,7 @@ library
                      , BoolExpr.Env
                      , BoolExpr.OBDD
                      , BoolExpr.ROBDD
+                     , BoolExpr.ROBDD_TH
                      , Util.BiDLUT
   build-depends:       base >= 4.7 && < 5
                      , containers
@@ -33,6 +34,8 @@ executable robdd-exe
   ghc-options:         -threaded -rtsopts -with-rtsopts=-N
   build-depends:       base
                      , robdd
+                     , array
+                     , parse-dimacs
   default-language:    Haskell2010
 
 test-suite robdd-test
@@ -44,6 +47,7 @@ test-suite robdd-test
                      , BoolExpr.QuickCheck.BoolExpr
                      , BoolExpr.QuickCheck.Compiler
                      , BoolExpr.QuickCheck.OBDD
+                     , BoolExpr.QuickCheck.ROBDD
   build-depends:       base
                      , robdd
                      , HUnit
