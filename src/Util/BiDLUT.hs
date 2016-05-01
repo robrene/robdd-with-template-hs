@@ -11,10 +11,9 @@ module Util.BiDLUT
   , empty
   , singleton
   , set
-  , deleteA
-  , deleteB
   , naturalKeys
   , reverseKeys
+  , assocs
   ) where
 
 import Prelude hiding (null)
@@ -34,13 +33,19 @@ data BiDLUT a b where
 --
 -- Operators:
 
--- Lookup a value in the natural direction.
-(!) :: BiDLUT a b -> a -> Maybe b
-(!) (MkBiDLUT ab _) a = Prelude.lookup a ab
+-- Find the value at a key in the natural direction.
+(!) :: BiDLUT a b -> a -> b
+(!) (MkBiDLUT ab _) a =
+  let res = Prelude.lookup a ab
+   in if isJust res then fromJust res
+      else error $ "Given key is not an element of the lookup table"
 
--- Lookup a value in the opposite direction.
-(¡) :: BiDLUT a b -> b -> Maybe a
-(¡) (MkBiDLUT _ ba) b = Prelude.lookup b ba
+-- Find the value at a key in the opposite direction.
+(¡) :: BiDLUT a b -> b -> a
+(¡) (MkBiDLUT _ ba) b =
+  let res = Prelude.lookup b ba
+   in if isJust res then fromJust res
+      else error $ "Given key is not an element of the lookup table"
 
 --
 -- Query:
@@ -84,19 +89,7 @@ set a b (MkBiDLUT ab ba) =
       ba' = List.delete (b, a) ba
    in MkBiDLUT ((a, b):ab') ((b, a):ba')
 
--- Delete a relation from the lookup table by its natural key.
-deleteA :: a -> BiDLUT a b -> BiDLUT a b
-deleteA a lut@(MkBiDLUT ab ba) =
-  let b = lut ! a
-   in if isNothing b then lut
-      else MkBiDLUT (List.delete (a, fromJust b) ab) (List.delete (fromJust b, a) ba)
-
--- Delete a relation from the lookup table by its reverse key.
-deleteB :: b -> BiDLUT a b -> BiDLUT a b
-deleteB b lut@(MkBiDLUT ab ba) =
-  let a = lut ¡ b
-   in if isNothing a then lut
-      else MkBiDLUT (List.delete (fromJust a, b) ab) (List.delete (b, fromJust a) ba)
+-- TODO: implement safeSet that throws error on existing key/reverse key
 
 --
 -- Conversion:
@@ -108,3 +101,13 @@ naturalKeys (MkBiDLUT ab _) = fst $ unzip ab
 -- Return all reverse keys.
 reverseKeys :: BiDLUT a b -> [b]
 reverseKeys (MkBiDLUT ab _) = snd $ unzip ab
+
+--
+assocs :: BiDLUT a b -> [(a, b)]
+assocs (MkBiDLUT ab _) = ab
+
+--
+-- Instances:
+
+instance (Show a, Show b) => Show (BiDLUT a b) where
+  show (MkBiDLUT ab _) = unlines $ map show ab
