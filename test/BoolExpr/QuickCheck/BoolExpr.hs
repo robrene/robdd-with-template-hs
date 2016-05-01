@@ -4,9 +4,9 @@ module BoolExpr.QuickCheck.BoolExpr
   ( BoolExprWithEnv (..) -- instance Test.QuickCheck.Arbitrary
   , runTests
   , prop_trivial
-  , prop_reduceCorrectness
-  , prop_partialReduceCorrectness
-  , prop_reduceTotalReduction
+  , prop_simplifyCorrectness
+  , prop_partialSimplifyCorrectness
+  , prop_simplifyTotalReduction
   ) where
 
 import Control.Monad
@@ -57,26 +57,24 @@ prop_trivial (BEwE (expr, env)) =
    in property $ (res || not res)
 
 -- Reducing a boolean expression may not affect the evaluation result.
-prop_reduceCorrectness :: BoolExprWithEnv -> Property
-prop_reduceCorrectness (BEwE (expr, env)) =
-  property $ eval (reduce expr env) env == eval expr env
+prop_simplifyCorrectness :: BoolExprWithEnv -> Property
+prop_simplifyCorrectness (BEwE (expr, env)) =
+  property $ eval (expr `simplifyWith` env) env == eval expr env
 
 -- Partially reducing a boolean expression may not affect the evaluation
 -- result.
-prop_partialReduceCorrectness :: BoolExprWithEnv -> Int -> Property
-prop_partialReduceCorrectness (BEwE (expr, env)) partialSize =
-  let mkEnvFromEnv :: Env -> Int -> Env -> Env
-      mkEnvFromEnv _    0 new = new
-      mkEnvFromEnv orig i new = mkEnvFromEnv orig (i-1) $ Env.set i (orig ! i) new
-      partialEnv = mkEnvFromEnv env (abs partialSize `mod` size env) (Env.empty)
-   in property $ eval (reduce expr partialEnv) env == eval expr env
+prop_partialSimplifyCorrectness :: BoolExprWithEnv -> Int -> Property
+prop_partialSimplifyCorrectness (BEwE (expr, env)) partialSize =
+  let mapT f (a0, a1) = (f a0, f a1)
+      (env0, env1) = mapT fromList $ splitAt (abs partialSize `mod` size env) (assocs env)
+   in property $ eval (expr `simplifyWith` env0) env1 == eval expr env
 
 -- Reducing a boolean expression with a complete environment results in a
 -- totally reduced expression (either `one` or `zero`).
-prop_reduceTotalReduction :: BoolExprWithEnv -> Property
-prop_reduceTotalReduction (BEwE (expr, env)) =
-  let reduced = reduce expr env
-   in property $ reduced == one || reduced == zero
+prop_simplifyTotalReduction :: BoolExprWithEnv -> Property
+prop_simplifyTotalReduction (BEwE (expr, env)) =
+  let simplified = expr `simplifyWith` env
+   in property $ simplified == one || simplified == zero
 
 -- Run all quickcheck properties.
 return []

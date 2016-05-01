@@ -15,9 +15,12 @@ module BoolExpr.BoolExpr
     , neg
     , (∧)
     , (∨)
+    , xor
+    , (≡)
     , maximumVar
     , eval
-    , reduce
+    , simplify
+    , simplifyWith
     ) where
 
 import BoolExpr.Env
@@ -70,6 +73,12 @@ neg e = BENot e
 (∨) :: BoolExpr -> BoolExpr -> BoolExpr
 (∨) e₁ e₂ = BEOr e₁ e₂
 
+xor :: BoolExpr -> BoolExpr -> BoolExpr
+xor e₁ e₂ = (e₁ ∨ e₂) ∧ (neg $ e₁ ∧ e₂)
+
+(≡) :: BoolExpr -> BoolExpr -> BoolExpr
+(≡) e₁ e₂ = neg $ e₁ `xor` e₂
+
 --
 -- Functions:
 
@@ -95,22 +104,31 @@ eval expr env = case expr of Var i     -> env ! i
                              Or e₁ e₂  -> (eval e₁ env) || (eval e₂ env)
                              _ -> error "???"
 
--- Apply some basic simple reduction rules to a boolean expression.
-reduce :: BoolExpr -> Env -> BoolExpr
-reduce expr env = reduce' expr
-  where reduce' (Var i)
-          | member i env = lit $ env ! i
-        reduce' (Not e)
-          | reduce' e == one  = zero
-          | reduce' e == zero = one
-        reduce' (And e₁ e₂)
-          | reduce' e₁ == one && reduce' e₂ == one   = one
-          | reduce' e₁ == one && reduce' e₂ == zero  = zero
-          | reduce' e₁ == zero && reduce' e₂ == one  = zero
-          | reduce' e₁ == zero && reduce' e₂ == zero = zero
-        reduce' (Or e₁ e₂)
-          | reduce' e₁ == one && reduce' e₂ == one   = one
-          | reduce' e₁ == one && reduce' e₂ == zero  = one
-          | reduce' e₁ == zero && reduce' e₂ == one  = one
-          | reduce' e₁ == zero && reduce' e₂ == zero = zero
-        reduce' e = e
+-- Apply some basic simplification rules to a boolean expression.
+simplify :: BoolExpr -> BoolExpr
+simplify expr = expr `simplifyWith` empty
+
+-- Apply some basic simplification rules to a boolean expression with an
+-- environment.
+simplifyWith :: BoolExpr -> Env -> BoolExpr
+simplifyWith expr env = simplify' expr
+  where simplify' (Var i)
+          | i `member` env = lit $ env ! i
+        simplify' (Not (Not e)) = simplify' e
+        simplify' (Not e)
+          | simplify' e == one  = zero
+          | simplify' e == zero = one
+          | otherwise           = neg $ simplify' e
+        simplify' (And e₁ e₂)
+          | simplify' e₁ == one  = simplify' e₂
+          | simplify' e₂ == one  = simplify' e₁
+          | simplify' e₁ == zero = zero
+          | simplify' e₂ == zero = zero
+          | otherwise            = simplify' e₁ ∧ simplify' e₂
+        simplify' (Or e₁ e₂)
+          | simplify' e₁ == one  = one
+          | simplify' e₂ == one  = one
+          | simplify' e₁ == zero = simplify' e₂
+          | simplify' e₂ == zero = simplify' e₁
+          | otherwise            = simplify' e₁ ∨ simplify' e₂
+        simplify' e = e
