@@ -3,6 +3,7 @@ import qualified BoolExpr.UnitTests.Compiler
 import qualified BoolExpr.QuickCheck.BoolExpr
 import qualified BoolExpr.QuickCheck.Compiler
 import qualified BoolExpr.QuickCheck.OBDD
+import qualified BoolExpr.QuickCheck.ROBDD
 
 main :: IO ()
 main =
@@ -15,4 +16,5 @@ main =
      BoolExpr.QuickCheck.BoolExpr.runTests
      BoolExpr.QuickCheck.Compiler.runTests
      BoolExpr.QuickCheck.OBDD.runTests
+     BoolExpr.QuickCheck.ROBDD.runTests
      return ()
