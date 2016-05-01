@@ -48,6 +48,7 @@ test-suite robdd-test
                      , BoolExpr.QuickCheck.Compiler
                      , BoolExpr.QuickCheck.OBDD
                      , BoolExpr.QuickCheck.ROBDD
+                     , BoolExpr.QuickCheck.ROBDD_TH
   build-depends:       base
                      , robdd
                      , HUnit
