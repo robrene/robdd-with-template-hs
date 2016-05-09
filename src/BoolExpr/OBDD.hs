@@ -9,9 +9,7 @@ module BoolExpr.OBDD
   , eval
   ) where
 
-import Data.Maybe
-
-import BoolExpr.BoolExpr (BoolExpr, maximumVar)
+import BoolExpr.BoolExpr (BoolExpr, numVars)
 import qualified BoolExpr.BoolExpr as BE (eval)
 import BoolExpr.Env as Env
 
@@ -50,7 +48,7 @@ node left i right = OBDDNode left i right
 -- Create the trivial ordered binary decision diagram with the worst case size
 -- which represents a boolean expression as a decision tree.
 mkTree :: BoolExpr -> OBDD
-mkTree expr = buildTree (fromMaybe (-1) (maximumVar expr)) (Env.empty)
+mkTree expr = buildTree (numVars expr) (Env.empty)
   where buildTree :: VarId -> Env -> OBDD
         buildTree (-1) env = if BE.eval expr env then one else zero
         buildTree i    env =

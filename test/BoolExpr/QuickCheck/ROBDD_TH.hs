@@ -6,7 +6,6 @@ module BoolExpr.QuickCheck.ROBDD_TH
   , prop_evalCompilationEEquivalency
   ) where
 
-import Data.Maybe (fromMaybe)
 import Language.Haskell.TH
 import Test.QuickCheck (Property, quickCheckAll)
 import Test.QuickCheck.Monadic (monadicIO, run, assert)
@@ -25,8 +24,7 @@ import BoolExpr.QuickCheck.BoolExpr (BoolExprWithEnv (..))
 -- the same result as evaluating that expression directly.
 prop_evalCompilationEquivalency :: BoolExprWithEnv -> Property
 prop_evalCompilationEquivalency (BEwE (expr, env)) = monadicIO $ do
-  let size = 1 + fromMaybe (-1) (BE.maximumVar expr)
-      env0 = Env.mkEnv $ take size (Env.elems env)
+  let env0 = Env.mkEnv $ take (BE.numVars expr) (Env.elems env)
   code <- run $ runQ (foldl appE (compile expr) $ map (\b -> [| b |]) (Env.elems env0))
   let meta = (Meta (pprint code) :: Meta Bool)
   result <- run $ compileMeta ["GHC.Types"] meta

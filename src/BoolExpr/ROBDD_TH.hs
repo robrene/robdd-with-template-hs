@@ -6,10 +6,9 @@ module BoolExpr.ROBDD_TH
   ) where
 
 import Data.Bimap (assocs)
-import Data.Maybe
 import Language.Haskell.TH
 
-import BoolExpr.BoolExpr (BoolExpr, maximumVar)
+import BoolExpr.BoolExpr (BoolExpr, numVars)
 import BoolExpr.Env (VarId)
 import BoolExpr.ROBDD (NodeId, Ref (..), NodeAttr)
 import qualified BoolExpr.ROBDD as ROBDD (build)
@@ -38,7 +37,7 @@ compile expr =
   let (ref, refmap) = ROBDD.build expr
       decs = map mkNodeDec (assocs refmap)
       letExp = letE decs $ mkRefExp ref
-      varNums = take (1 + (fromMaybe (-1) $ maximumVar expr)) [0..]
+      varNums = take (numVars expr) [0..]
       lamPat = map (varP . varName) $ varNums
    in lamE lamPat letExp
   where -- TH naming scheme for the boolean expression variables.

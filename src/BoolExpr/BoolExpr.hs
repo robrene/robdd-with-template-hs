@@ -10,6 +10,7 @@ module BoolExpr.BoolExpr
     , xor
     , (≡)
     , maximumVar
+    , numVars
     , eval
     , simplify
     , simplifyWith
@@ -70,6 +71,13 @@ maximumVar (One)       = Nothing
 maximumVar (Not e)     = maximumVar e
 maximumVar (And e₁ e₂) = max (maximumVar e₁) (maximumVar e₂)
 maximumVar (Or e₁ e₂)  = max (maximumVar e₁) (maximumVar e₂)
+
+-- Return the number of variables inside a boolean expression based on the
+-- highest variable number.
+numVars :: BoolExpr -> Int
+numVars expr = numVars' $ maximumVar expr
+  where numVars' Nothing  = 0
+        numVars' (Just i) = i + 1
 
 -- Evaluate a boolean expression with an environment. Will cause an error
 -- if the environment is incomplete.
