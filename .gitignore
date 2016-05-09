@@ -1,2 +1,4 @@
 .stack-work/
 *.prof
+*.o
+*.hi

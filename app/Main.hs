@@ -1,25 +1,26 @@
 module Main where
 
-import Data.Array.Unboxed (elems)
-import System.Environment (getArgs)
-import Language.CNF.Parse.ParseDIMACS (parseFile, Clause, clauses)
+import Language.Haskell.TH
 
+import App.Benchmarks
+import App.CNF2BoolExpr
 import BoolExpr.BoolExpr
-import BoolExpr.ROBDD
+import BoolExpr.Env
+import BoolExpr.ROBDD as ROBDD
+import BoolExpr.ROBDD_TH as ROBDD_TH
+import Data.Meta
+
+mkMeta :: BoolExpr -> IO (Meta ((Int -> Bool) -> Bool))
+mkMeta expr = do
+  th <- runQ $ ROBDD_TH.compileE expr
+  return $ Meta (filter ((/=) '#') (pprint th))
 
 main :: IO ()
-main = do args <- getArgs
-          cnf <- parseFile $ head args
-          putStrLn . show . build. mkBE $ either (const []) clauses cnf
-          return ()
-
-mkBE :: [Clause] -> BoolExpr
-mkBE cs = foldr (∧) one $ map (mkDisj . elems) cs
-
-mkDisj :: [Int] -> BoolExpr
-mkDisj ids = foldr1 (∨) $ map mkVar ids
-
-mkVar :: Int -> BoolExpr
-mkVar i | i > 0 = var $ i - 1
-mkVar i | i < 0 = neg $ var $ -i - 1
-mkVar _ = undefined
+main = do expr <- cnfFile "/Users/rob/Desktop/SATLIB/uf20-91/uf20-01.cnf"
+          let robdd = ROBDD.build expr
+          meta <- mkMeta expr
+          result <- compileMeta ["GHC.Types"] meta
+          case result of
+            Left err -> putStrLn "Failed: " >> putStrLn err
+            Right fn -> do
+              runBenchmarks expr robdd (\env -> (fn $ (!) env))
