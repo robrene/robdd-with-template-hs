@@ -27,15 +27,14 @@ prop_evalCompilationEquivalency :: BoolExprWithEnv -> Property
 prop_evalCompilationEquivalency (BEwE (expr, env)) = monadicIO $ do
   let size = 1 + fromMaybe (-1) (BE.maximumVar expr)
       env0 = Env.mkEnv $ take size (Env.elems env)
-  if size == 0 then assert True else do
-    code <- run $ runQ (foldl appE (compile expr) $ map (\b -> [| b |]) (Env.elems env0))
-    let meta = (Meta (pprint code) :: Meta Bool)
-    result <- run $ compileMeta ["GHC.Types"] meta
-    case result of
-      Left err -> do run $ putStrLn "Failed: "
-                     run $ putStrLn err
-                     assert False
-      Right fn -> assert (fn == BE.eval expr env)
+  code <- run $ runQ (foldl appE (compile expr) $ map (\b -> [| b |]) (Env.elems env0))
+  let meta = (Meta (pprint code) :: Meta Bool)
+  result <- run $ compileMeta ["GHC.Types"] meta
+  case result of
+    Left err -> do run $ putStrLn "Failed: "
+                   run $ putStrLn err
+                   assert False
+    Right fn -> assert (fn == BE.eval expr env)
 
 -- Running ROBDDs compiled to TH from generated boolean expressions must return
 -- the same result as evaluating that expression directly.

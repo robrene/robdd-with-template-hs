@@ -38,7 +38,7 @@ compile expr =
   let (ref, refmap) = ROBDD.build expr
       decs = map mkNodeDec (assocs refmap)
       letExp = letE decs $ mkRefExp ref
-      varNums = take (1 + (fromJust $ maximumVar expr)) [0..]
+      varNums = take (1 + (fromMaybe (-1) $ maximumVar expr)) [0..]
       lamPat = map (varP . varName) $ varNums
    in lamE lamPat letExp
   where -- TH naming scheme for the boolean expression variables.
