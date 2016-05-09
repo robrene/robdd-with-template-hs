@@ -37,9 +37,10 @@ compile expr =
   let (ref, refmap) = ROBDD.build expr
       decs = map mkNodeDec (assocs refmap)
       letExp = letE decs $ mkRefExp ref
-      varNums = take (numVars expr) [0..]
+      exprSize = numVars expr
+      varNums = take exprSize [0..]
       lamPat = map (varP . varName) $ varNums
-   in lamE lamPat letExp
+   in if exprSize == 0 then letExp else lamE lamPat letExp
   where -- TH naming scheme for the boolean expression variables.
         varName :: VarId -> Name
         varName i = mkName $ "x_" ++ (show i)
