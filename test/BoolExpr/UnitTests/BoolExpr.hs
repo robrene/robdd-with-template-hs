@@ -5,8 +5,10 @@ import Test.HUnit
 import BoolExpr.BoolExpr
 import BoolExpr.Env as Env
 
+runTests :: IO Counts
 runTests = runTestTT tests
 
+tests :: Test
 tests = TestList
   [ testEvalZero
   , testEvalOne

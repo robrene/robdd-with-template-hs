@@ -21,4 +21,5 @@ prop_evalTreeEquivalency (BEwE (expr, env)) =
 
 -- Run all quickcheck properties.
 return []
+runTests :: IO Bool
 runTests = $quickCheckAll

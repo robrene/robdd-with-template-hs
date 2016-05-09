@@ -36,4 +36,5 @@ prop_evalCompilationEquivalency = monadicIO . propM
 --
 -- Run all quickcheck properties.
 return []
+runTests :: IO Bool
 runTests = $quickCheckAll

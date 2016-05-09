@@ -5,16 +5,12 @@ module BoolExpr.QuickCheck.ROBDD
   , prop_evalROBDDEquivalency
   ) where
 
-import Data.Maybe (fromJust)
 import Test.QuickCheck (Property, property, quickCheckAll)
 
 import qualified BoolExpr.BoolExpr as BE
 import qualified BoolExpr.ROBDD as ROBDD
 
-import BoolExpr.Env (VarId)
-import BoolExpr.ROBDD (ROBDD, NodeId, Ref (..), NodeAttr)
 import BoolExpr.QuickCheck.BoolExpr (BoolExprWithEnv (..))
-import Util.BiDLUT ((!))
 
 --
 -- Basic properties:
@@ -29,4 +25,5 @@ prop_evalROBDDEquivalency (BEwE (expr, env)) =
 --
 -- Run all quickcheck properties.
 return []
+runTests :: IO Bool
 runTests = $quickCheckAll
